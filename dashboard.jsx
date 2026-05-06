@@ -66,27 +66,27 @@ function Dashboard({ sites, onOpen, onCreate, user, onNavigate, onOpenAI }) {
           <BarChart data={TRAFFIC_BY_DAY} height={150} />
         </div>
 
-        <div className="card glow-card" style={{ padding: 22, background: 'var(--ink)', color: 'var(--bg)', border: 'none', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, oklch(0.55 0.18 268 / 0.4), transparent 70%)' }} />
+        <div className="card glow-card" style={{ padding: 22, background: 'linear-gradient(135deg, var(--accent-soft) 0%, oklch(0.96 0.06 268) 100%)', border: '1px solid oklch(0.55 0.18 268 / 0.2)', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, oklch(0.55 0.18 268 / 0.15), transparent 70%)' }} />
           <div style={{ position: 'relative' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 8, background: 'oklch(0.55 0.18 268 / 0.25)', color: 'oklch(0.85 0.14 268)', display: 'grid', placeItems: 'center' }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--accent)', color: 'white', display: 'grid', placeItems: 'center' }}>
                 <Icons.sparkles size={14} />
               </div>
-              <span className="eyebrow" style={{ color: 'oklch(0.78 0.12 268)' }}>AI co-writer</span>
+              <span className="eyebrow" style={{ color: 'var(--accent-ink)' }}>AI co-writer</span>
             </div>
-            <h3 style={{ color: 'var(--bg)', fontSize: 18, lineHeight: 1.3, marginBottom: 8, letterSpacing: '-0.02em' }}>
+            <h3 style={{ color: 'var(--ink)', fontSize: 18, lineHeight: 1.3, marginBottom: 8, letterSpacing: '-0.02em' }}>
               Draft a whole page from one sentence.
             </h3>
-            <p style={{ fontSize: 13, color: 'oklch(0.78 0.01 80)', lineHeight: 1.55, marginBottom: 16 }}>
+            <p style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.55, marginBottom: 16 }}>
               Hero, features, pricing — generated, edited, ready to publish in minutes.
             </p>
-            <button className="btn btn-sm press" onClick={onOpenAI} style={{ background: 'var(--bg)', color: 'var(--ink)' }}>
+            <button className="btn btn-primary btn-sm press" onClick={onOpenAI}>
               Open generator <Icons.arrowRight size={12} />
             </button>
             <div style={{ display: 'flex', gap: 6, marginTop: 14, flexWrap: 'wrap' }}>
               {['Hero copy', 'About', 'Pricing', 'FAQ'].map(t => (
-                <span key={t} style={{ fontSize: 10.5, padding: '3px 8px', borderRadius: 999, background: 'oklch(0.99 0 0 / 0.08)', color: 'oklch(0.85 0.01 80)', border: '1px solid oklch(0.99 0 0 / 0.1)' }}>{t}</span>
+                <span key={t} style={{ fontSize: 10.5, padding: '3px 8px', borderRadius: 999, background: 'white', color: 'var(--accent-ink)', border: '1px solid oklch(0.55 0.18 268 / 0.2)' }}>{t}</span>
               ))}
             </div>
           </div>

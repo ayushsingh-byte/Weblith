@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './lib/supabase'
-import { SEED_SITES } from './data/seeds'
+import { fetchSites, createSite, updateSite, publishSite, saveVersion } from './lib/db'
+import { TEMPLATES } from './data/seeds'
 
 import AuthPage from './pages/AuthPage'
 import DashboardPage from './pages/DashboardPage'
@@ -26,25 +27,11 @@ import NotificationsPanel from './components/overlays/NotificationsPanel'
 
 import Icons from './components/ui/Icons'
 
-const SITES_KEY = 'weblith_sites_v1'
-
-function loadSites() {
-  try {
-    const raw = localStorage.getItem(SITES_KEY)
-    if (raw) return JSON.parse(raw)
-  } catch {}
-  return SEED_SITES
-}
-
-function saveSites(sites) {
-  try { localStorage.setItem(SITES_KEY, JSON.stringify(sites)) } catch {}
-}
-
 function LoadingScreen() {
   return (
     <div style={{ height: '100vh', display: 'grid', placeItems: 'center', background: 'var(--bg)' }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-        <div className="brand-mark" style={{ width: 44, height: 44, fontSize: 20, borderRadius: 12 }}>F</div>
+        <div className="brand-mark" style={{ width: 44, height: 44, fontSize: 20, borderRadius: 12 }}>W</div>
         <span className="spinner" style={{ width: 18, height: 18 }} />
       </div>
     </div>
@@ -52,17 +39,19 @@ function LoadingScreen() {
 }
 
 export default function App() {
-  const [session, setSession] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [sites, setSites] = useState(loadSites)
-  const [route, setRoute] = useState('dashboard')
+  const [session, setSession]         = useState(null)
+  const [loading, setLoading]         = useState(true)
+  const [sitesLoading, setSitesLoading] = useState(false)
+  const [sites, setSites]             = useState([])
+  const [route, setRoute]             = useState('dashboard')
   const [editingSiteId, setEditingSiteId] = useState(null)
-  const [createOpen, setCreateOpen] = useState(false)
-  const [aiOpen, setAiOpen] = useState(false)
-  const [cmdkOpen, setCmdkOpen] = useState(false)
-  const [notifOpen, setNotifOpen] = useState(false)
-  const [toasts, setToasts] = useState([])
+  const [createOpen, setCreateOpen]   = useState(false)
+  const [aiOpen, setAiOpen]           = useState(false)
+  const [cmdkOpen, setCmdkOpen]       = useState(false)
+  const [notifOpen, setNotifOpen]     = useState(false)
+  const [toasts, setToasts]           = useState([])
 
+  // ── Auth ──────────────────────────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
@@ -74,6 +63,23 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // ── Load sites from Supabase when session is ready ────────────────────────
+  const loadSites = useCallback(async () => {
+    if (!session) return
+    setSitesLoading(true)
+    try {
+      const data = await fetchSites()
+      setSites(data)
+    } catch (err) {
+      addToast(`Failed to load sites: ${err.message}`)
+    } finally {
+      setSitesLoading(false)
+    }
+  }, [session])
+
+  useEffect(() => { loadSites() }, [loadSites])
+
+  // ── ⌘K shortcut ──────────────────────────────────────────────────────────
   useEffect(() => {
     const onKey = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -85,45 +91,67 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  useEffect(() => { saveSites(sites) }, [sites])
-
+  // ── Toasts ────────────────────────────────────────────────────────────────
   const addToast = (msg) => {
     const id = Math.random().toString(36).slice(2)
     setToasts(t => [...t, { id, msg }])
     setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 2600)
   }
 
-  const createSite = ({ name, slug, template }) => {
-    const id = `s${Date.now()}`
+  // ── Site CRUD ─────────────────────────────────────────────────────────────
+  const handleCreateSite = async ({ name, slug, template }) => {
+    const tpl = TEMPLATES.find(t => t.id === template)
     const newSite = {
-      id, name, slug, template,
-      status: 'draft', visitors: 0, edited: 'just now',
+      name, slug, template,
+      status: 'draft',
+      visitors: 0,
       domain: `${slug}.weblith.site`,
       favicon: name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase() || 'NS',
-      color: 'oklch(0.92 0.04 80)',
+      color: tpl?.swatch || 'oklch(0.92 0.04 80)',
       content: {
         title: name,
-        tagline: 'A new site',
+        tagline: tpl?.desc || 'A new site',
         sections: [
-          { id: 'hero-1', type: 'hero', heading: `Welcome to ${name}`, sub: 'Start editing this site to make it your own.', cta: 'Get started' },
+          { id: 'hero-1', type: 'hero', heading: `Welcome to ${name}`, sub: tpl?.desc || 'Start editing this site.', cta: 'Get started' },
         ],
       },
     }
-    setSites(s => [newSite, ...s])
-    setCreateOpen(false)
-    setEditingSiteId(id)
+    // Throws on error — CreateSiteModal catches it and shows inline error
+    const saved = await createSite(newSite, session.user.id)
+    setSites(s => [saved, ...s])
+    setEditingSiteId(saved.id)
     setRoute('editor')
     addToast(`Created "${name}"`)
   }
 
-  const updateSite = (next) => {
+  const handleUpdateSite = async (next) => {
+    // Optimistic local update first
     setSites(list => list.map(s => s.id === next.id ? { ...next, edited: 'just now' } : s))
+    try {
+      const saved = await updateSite(next, session.user.id)
+      setSites(list => list.map(s => s.id === saved.id ? saved : s))
+    } catch (err) {
+      addToast(`Save failed: ${err.message}`)
+      loadSites() // revert on error
+    }
   }
 
-  const publishSite = () => {
+  const handlePublishSite = async () => {
     if (!editingSiteId) return
-    setSites(list => list.map(s => s.id === editingSiteId ? { ...s, status: 'published' } : s))
-    addToast('Site published!')
+    // Auto-save a version before publishing
+    const site = sites.find(s => s.id === editingSiteId)
+    if (site) {
+      try {
+        await saveVersion(site, session.user.id, 'Before publish')
+      } catch {} // non-fatal
+    }
+    try {
+      const saved = await publishSite(editingSiteId, session.user.id)
+      setSites(list => list.map(s => s.id === saved.id ? saved : s))
+      addToast('Site published!')
+    } catch (err) {
+      addToast(`Publish failed: ${err.message}`)
+    }
   }
 
   const handleNavigate = (target) => {
@@ -135,9 +163,11 @@ export default function App() {
     }
   }
 
+  // ── Derived ───────────────────────────────────────────────────────────────
   const user = session ? {
-    name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'You',
-    email: session.user.email,
+    id:       session.user.id,
+    name:     session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'You',
+    email:    session.user.email,
     initials: (session.user.user_metadata?.name || session.user.email || 'U')
       .split(/[\s@]/).filter(Boolean).map(s => s[0]).join('').slice(0, 2).toUpperCase(),
   } : null
@@ -146,21 +176,22 @@ export default function App() {
 
   const routeLabel = {
     dashboard: ['Workspace', 'Dashboard'],
-    sites: ['Workspace', 'Sites'],
+    sites:     ['Workspace', 'Sites'],
     analytics: ['Workspace', 'Analytics'],
     templates: ['Workspace', 'Templates'],
-    ai: ['Workspace', 'AI generator'],
-    media: ['Workspace', 'Media'],
-    deploy: ['Site', 'Deploy'],
-    domain: ['Site', 'Domain'],
-    versions: ['Site', 'Version history'],
-    canvas: ['Site', 'Canvas'],
-    settings: ['Workspace', 'Settings'],
+    ai:        ['Workspace', 'AI generator'],
+    media:     ['Workspace', 'Media'],
+    deploy:    ['Site', 'Deploy'],
+    domain:    ['Site', 'Domain'],
+    versions:  ['Site', 'Version history'],
+    canvas:    ['Site', 'Canvas'],
+    settings:  ['Workspace', 'Settings'],
   }
 
   if (loading) return <LoadingScreen />
   if (!session) return <AuthPage />
 
+  // ── Editor route ─────────────────────────────────────────────────────────
   if (route === 'editor' && editingSite) {
     return (
       <>
@@ -169,9 +200,9 @@ export default function App() {
           <main className="main" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <EditorPage
               site={editingSite}
-              onUpdate={updateSite}
+              onUpdate={handleUpdateSite}
               onBack={() => { setEditingSiteId(null); setRoute('sites') }}
-              onPublish={publishSite}
+              onPublish={handlePublishSite}
               onOpenAI={() => setAiOpen(true)}
               addToast={addToast}
             />
@@ -184,7 +215,7 @@ export default function App() {
             const next = JSON.parse(JSON.stringify(editingSite))
             const hero = next.content.sections.find(s => s.type === 'hero')
             if (hero) { hero.heading = r.heading; hero.sub = r.sub; if (r.cta) hero.cta = r.cta }
-            updateSite(next)
+            handleUpdateSite(next)
           }}
           addToast={addToast}
         />
@@ -194,6 +225,7 @@ export default function App() {
     )
   }
 
+  // ── Main shell ───────────────────────────────────────────────────────────
   return (
     <>
       <div className="app-shell">
@@ -213,7 +245,7 @@ export default function App() {
           <div className="main-scroll">
             {route === 'dashboard' && (
               <DashboardPage
-                sites={sites} user={user}
+                sites={sites} user={user} sitesLoading={sitesLoading}
                 onOpen={(id) => { setEditingSiteId(id); setRoute('editor') }}
                 onCreate={() => setCreateOpen(true)}
                 onNavigate={setRoute}
@@ -222,25 +254,25 @@ export default function App() {
             )}
             {route === 'sites' && (
               <SitesPage
-                sites={sites}
+                sites={sites} sitesLoading={sitesLoading}
                 onOpen={(id) => { setEditingSiteId(id); setRoute('editor') }}
                 onCreate={() => setCreateOpen(true)}
               />
             )}
-            {route === 'analytics' && <AnalyticsPage sites={sites} />}
+            {route === 'analytics' && <AnalyticsPage sites={sites} userId={user?.id} />}
             {route === 'templates' && <TemplatesPage onUse={() => setCreateOpen(true)} />}
-            {route === 'ai' && <AIPage />}
-            {route === 'media' && <MediaPage />}
-            {route === 'deploy' && <DeployPage sites={sites} />}
-            {route === 'domain' && <DomainPage sites={sites} />}
-            {route === 'versions' && <VersionPage />}
-            {route === 'canvas' && <CanvasPage />}
-            {route === 'settings' && <SettingsPage user={user} />}
+            {route === 'ai'        && <AIPage />}
+            {route === 'media'     && <MediaPage userId={user?.id} />}
+            {route === 'deploy'    && <DeployPage sites={sites} />}
+            {route === 'domain'    && <DomainPage sites={sites} />}
+            {route === 'versions'  && <VersionPage site={editingSite ?? sites[0]} userId={user?.id} />}
+            {route === 'canvas'    && <CanvasPage />}
+            {route === 'settings'  && <SettingsPage user={user} />}
           </div>
         </main>
       </div>
 
-      <CreateSiteModal open={createOpen} onClose={() => setCreateOpen(false)} onCreate={createSite} />
+      <CreateSiteModal open={createOpen} onClose={() => setCreateOpen(false)} onCreate={handleCreateSite} />
       <CommandPalette open={cmdkOpen} onClose={() => setCmdkOpen(false)} onNavigate={handleNavigate} onCreate={() => { setCmdkOpen(false); setCreateOpen(true) }} onOpenAI={() => { setCmdkOpen(false); setRoute('ai') }} sites={sites} />
       <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} />
       <Toaster toasts={toasts} />

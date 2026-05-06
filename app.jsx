@@ -2,9 +2,16 @@
 const { useState, useEffect } = React;
 
 function App() {
-  const [authed, setAuthed] = useState(false);
+  const [authed, setAuthed] = useState(() => {
+    try { return localStorage.getItem('weblith-authed') === '1'; } catch { return false; }
+  });
   const [authMode, setAuthMode] = useState('login');
-  const [user, setUser] = useState(MOCK_USER);
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('weblith-user');
+      return saved ? JSON.parse(saved) : MOCK_USER;
+    } catch { return MOCK_USER; }
+  });
   const [sites, setSites] = useState(SEED_SITES);
   const [route, setRoute] = useState('dashboard');
   const [editingSiteId, setEditingSiteId] = useState(null);
@@ -33,9 +40,16 @@ function App() {
   };
 
   const handleAuth = ({ email, name }) => {
-    setUser({ ...MOCK_USER, name: name || MOCK_USER.name, email, initials: (name || MOCK_USER.name).split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase() });
+    const u = { ...MOCK_USER, name: name || MOCK_USER.name, email, initials: (name || MOCK_USER.name).split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase() };
+    setUser(u);
     setAuthed(true);
     setRoute('dashboard');
+    try { localStorage.setItem('weblith-authed', '1'); localStorage.setItem('weblith-user', JSON.stringify(u)); } catch {}
+  };
+
+  const handleSignOut = () => {
+    setAuthed(false);
+    try { localStorage.removeItem('weblith-authed'); localStorage.removeItem('weblith-user'); } catch {}
   };
 
   const createSite = ({ name, slug, template }) => {
@@ -105,7 +119,7 @@ function App() {
     return (
       <>
         <div className="app-shell">
-          <Sidebar route={'sites'} go={(r) => { setRoute(r); setEditingSiteId(null); }} sites={sites} />
+          <Sidebar route={'sites'} go={(r) => { setRoute(r); setEditingSiteId(null); }} sites={sites} onSignOut={handleSignOut} />
           <main className="main">
             <Editor
               site={editingSite}
@@ -137,7 +151,7 @@ function App() {
   return (
     <>
       <div className="app-shell">
-        <Sidebar route={route} go={setRoute} sites={sites} />
+        <Sidebar route={route} go={setRoute} sites={sites} onSignOut={handleSignOut} />
         <main className="main">
           <Topbar
             crumbs={routeLabel[route] || ['Workspace']}
@@ -150,6 +164,7 @@ function App() {
               </button>
             }
           />
+          <div className="main-scroll">
           {route === 'dashboard' && <Dashboard sites={sites} user={user} onOpen={(id) => { setEditingSiteId(id); setRoute('editor'); }} onCreate={() => setCreateOpen(true)} onNavigate={setRoute} onOpenAI={() => setRoute('ai')} />}
           {route === 'sites' && <SitesPage sites={sites} onOpen={(id) => { setEditingSiteId(id); setRoute('editor'); }} onCreate={() => setCreateOpen(true)} />}
           {route === 'analytics' && <AnalyticsPage sites={sites} />}
@@ -161,6 +176,7 @@ function App() {
           {route === 'versions' && <VersionPage site={sites[0]} />}
           {route === 'canvas' && <CanvasPage />}
           {route === 'settings' && <SettingsPage user={user} />}
+          </div>
         </main>
       </div>
 

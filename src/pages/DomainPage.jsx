@@ -2,13 +2,10 @@ import { useState } from 'react'
 import Icons from '../components/ui/Icons'
 
 export default function DomainPage({ sites }) {
-  const [siteId, setSiteId] = useState(sites[0]?.id)
-  const site = sites.find(s => s.id === siteId)
-  const [domains, setDomains] = useState([
-    { name: 'studio-halcyon.com', primary: true, status: 'live', ssl: 'auto', issued: 'Apr 12, 2026', expires: 'Jul 11, 2026' },
-    { name: 'www.studio-halcyon.com', primary: false, status: 'live', ssl: 'auto', issued: 'Apr 12, 2026', expires: 'Jul 11, 2026' },
-    { name: 'halcyon.studio', primary: false, status: 'pending', ssl: '—', issued: '—', expires: '—' },
-  ])
+  const [siteId, setSiteId] = useState(sites[0]?.id ?? '')
+  const site = sites.find(s => s.id === siteId) ?? sites[0]
+  // custom domains are stored per-site; starts empty — user adds via wizard
+  const [domains, setDomains] = useState([])
   const [showWiz, setShowWiz] = useState(false)
   const [wizStep, setWizStep] = useState(1)
   const [wizDomain, setWizDomain] = useState('')

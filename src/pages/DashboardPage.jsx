@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { ACTIVITY } from '../data/seeds'
+import { useState, useEffect } from 'react'
 import Icons from '../components/ui/Icons'
+import { fetchActivity } from '../lib/db'
 import { Sparkline, BarChart } from '../components/ui/Sparkline'
 import CollabStack from '../components/overlays/CollabStack'
 
@@ -90,8 +90,14 @@ function SiteCard({ site, onOpen }) {
   )
 }
 
-export default function DashboardPage({ sites, onOpen, onCreate, user, onNavigate, onOpenAI }) {
-  const [filter, setFilter] = useState('all')
+export default function DashboardPage({ sites, sitesLoading, onOpen, onCreate, user, onNavigate, onOpenAI }) {
+  const [filter, setFilter]     = useState('all')
+  const [activity, setActivity] = useState([])
+
+  useEffect(() => {
+    fetchActivity(8).then(setActivity).catch(console.error)
+  }, [])
+
   const filtered = sites.filter(s => filter === 'all' || s.status === filter)
   const totalVisitors = sites.reduce((a, s) => a + s.visitors, 0)
 
@@ -207,14 +213,23 @@ export default function DashboardPage({ sites, onOpen, onCreate, user, onNavigat
           <div className="card" style={{ padding: 18 }}>
             <h3 className="eyebrow" style={{ marginBottom: 14 }}>Activity feed</h3>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column' }}>
-              {ACTIVITY.slice(0, 5).map((a, i) => (
-                <li key={i} style={{ fontSize: 12.5, lineHeight: 1.45, position: 'relative', paddingLeft: 18, paddingBottom: i < 4 ? 14 : 0 }}>
-                  <span style={{ position: 'absolute', left: 3, top: 4, width: 7, height: 7, borderRadius: '50%', background: i === 0 ? 'var(--accent)' : 'var(--bg)', border: '2px solid ' + (i === 0 ? 'var(--accent)' : 'var(--line-strong)') }} />
-                  {i < 4 && <span style={{ position: 'absolute', left: 6, top: 12, width: 1, bottom: 0, background: 'var(--line)' }} />}
-                  <div style={{ color: 'var(--ink)' }}><strong style={{ fontWeight: 500 }}>{a.who}</strong> <span style={{ color: 'var(--ink-2)' }}>{a.what}</span></div>
-                  <div style={{ color: 'var(--ink-3)', fontSize: 11, marginTop: 2 }}>{a.on} · {a.when}</div>
+              {activity.length === 0 && (
+                <li style={{ fontSize: 12.5, color: 'var(--ink-3)', padding: '8px 0' }}>
+                  No activity yet — create your first site!
                 </li>
-              ))}
+              )}
+              {activity.map((a, i) => {
+                const label = a.action.replace(/_/g, ' ')
+                const isLast = i === activity.length - 1
+                return (
+                  <li key={a.id} style={{ fontSize: 12.5, lineHeight: 1.45, position: 'relative', paddingLeft: 18, paddingBottom: isLast ? 0 : 14 }}>
+                    <span style={{ position: 'absolute', left: 3, top: 4, width: 7, height: 7, borderRadius: '50%', background: i === 0 ? 'var(--accent)' : 'var(--bg)', border: '2px solid ' + (i === 0 ? 'var(--accent)' : 'var(--line-strong)') }} />
+                    {!isLast && <span style={{ position: 'absolute', left: 6, top: 12, width: 1, bottom: 0, background: 'var(--line)' }} />}
+                    <div style={{ color: 'var(--ink)' }}><span style={{ color: 'var(--ink-2)' }}>{label}</span></div>
+                    <div style={{ color: 'var(--ink-3)', fontSize: 11, marginTop: 2 }}>{a.on ? `${a.on} · ` : ''}{a.when}</div>
+                  </li>
+                )
+              })}
             </ul>
           </div>
 

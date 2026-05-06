@@ -68,16 +68,25 @@ function Donut({ segments, size = 180 }) {
 }
 
 export default function AnalyticsPage({ sites }) {
-  const [range, setRange] = useState('30d')
-  const [activeSite, setActiveSite] = useState(sites[0]?.id)
-  const [metric, setMetric] = useState('visitors')
-  const site = sites.find(s => s.id === activeSite) || sites[0]
+  const [range, setRange]       = useState('30d')
+  const [activeSite, setActiveSite] = useState(sites[0]?.id ?? '')
+  const [metric, setMetric]     = useState('visitors')
 
+  // keep activeSite in sync when sites load
+  const site = sites.find(s => s.id === activeSite) ?? sites[0]
+
+  const totalVisitors = site?.visitors ?? 0
   const days = range === '24h' ? 24 : range === '7d' ? 7 : range === '30d' ? 30 : 90
-  const visitorsData = Array.from({ length: days }, (_, i) => {
-    const v = 200 + Math.sin(i / 3) * 80 + Math.cos(i / 7) * 60 + i * 6 + Math.random() * 40
-    return { label: range === '24h' ? `${i}:00` : `D${i+1}`, value: Math.max(0, Math.round(v)) }
-  })
+
+  // scale generated curve to match real visitor total
+  const rawCurve = Array.from({ length: days }, (_, i) =>
+    Math.max(0, 1 + Math.sin(i / 3) * 0.4 + Math.cos(i / 7) * 0.3 + (i / days) * 0.6)
+  )
+  const curveSum = rawCurve.reduce((a, v) => a + v, 0) || 1
+  const visitorsData = rawCurve.map((v, i) => ({
+    label: range === '24h' ? `${i}:00` : `D${i + 1}`,
+    value: Math.round((v / curveSum) * totalVisitors),
+  }))
 
   const sources = [
     { label: 'Direct', value: 1842, pct: 38, color: 'oklch(0.55 0.18 268)' },
@@ -136,10 +145,17 @@ export default function AnalyticsPage({ sites }) {
         </div>
       </div>
 
+      {sites.length === 0 && (
+        <div className="card" style={{ padding: 40, textAlign: 'center', color: 'var(--ink-3)', marginBottom: 16 }}>
+          <Icons.zap size={28} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.25 }} />
+          <div style={{ fontSize: 14, fontWeight: 500 }}>No sites yet</div>
+          <div style={{ fontSize: 13, marginTop: 6 }}>Create a site to start seeing analytics.</div>
+        </div>
+      )}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
         {[
-          { l: 'Visitors', v: '4,845', d: '+12.4%', up: true, t: visitorsData.slice(-12).map(d => d.value) },
-          { l: 'Page views', v: '12,802', d: '+8.1%', up: true, t: [200,240,260,280,310,340,360,400,440,460] },
+          { l: 'Visitors', v: totalVisitors.toLocaleString(), d: '+12.4%', up: true, t: visitorsData.slice(-12).map(d => d.value) },
+          { l: 'Page views', v: (totalVisitors * 2.6).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ','), d: '+8.1%', up: true, t: [200,240,260,280,310,340,360,400,440,460] },
           { l: 'Avg. session', v: '2:48', d: '+0:14', up: true, t: [120,130,140,138,150,148,160,165,168,170] },
           { l: 'Bounce rate', v: '34.2%', d: '-3.1pt', up: true, t: [40,38,36,37,35,34,34,33,33,34] },
         ].map(k => (

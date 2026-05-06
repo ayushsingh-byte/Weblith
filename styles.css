@@ -282,20 +282,41 @@ h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -0.02em; color: va
 .app-shell {
   display: grid;
   grid-template-columns: 232px 1fr;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .sidebar {
   background: var(--bg-sunk);
   border-right: 1px solid var(--line);
-  padding: 16px 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar-top {
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 0 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
+}
+
+.sidebar-bottom {
+  flex-shrink: 0;
+  padding: 0 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .sidebar-brand {
@@ -362,6 +383,13 @@ h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -0.02em; color: va
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
+}
+
+.main-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .topbar {
@@ -686,8 +714,8 @@ kbd {
 .avatar-stack > * + * { margin-left: -8px; }
 
 /* Spark / chart bars */
-.spark-bar { background: var(--ink); border-radius: 2px 2px 0 0; transition: height .4s var(--ease), background .15s; }
-.spark-bar:hover { background: var(--accent); }
+.spark-bar { background: var(--accent); opacity: 0.75; border-radius: 3px 3px 0 0; transition: height .4s var(--ease), background .15s, opacity .15s; }
+.spark-bar:hover { opacity: 1; background: var(--accent); }
 
 /* Glow card */
 .glow-card { position: relative; isolation: isolate; }

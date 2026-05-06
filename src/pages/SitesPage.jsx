@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Icons from '../components/ui/Icons'
 import { Sparkline } from '../components/ui/Sparkline'
 
-export default function SitesPage({ sites, onOpen, onCreate }) {
+export default function SitesPage({ sites, sitesLoading, onOpen, onCreate }) {
   const [q, setQ] = useState('')
   const list = sites.filter(s => !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.domain.toLowerCase().includes(q.toLowerCase()))
 
@@ -22,6 +22,17 @@ export default function SitesPage({ sites, onOpen, onCreate }) {
         </div>
       </div>
       <div className="card" style={{ overflow: 'hidden' }}>
+        {sitesLoading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
+            <span className="spinner" />
+          </div>
+        ) : list.length === 0 ? (
+          <div style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--ink-3)' }}>
+            <Icons.grid size={32} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.25 }} />
+            <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 8 }}>No sites yet</div>
+            <button className="btn btn-primary btn-sm press" onClick={onCreate}><Icons.plus size={12} /> Create your first site</button>
+          </div>
+        ) : (
         <table className="tbl">
           <thead>
             <tr><th>Name</th><th>Status</th><th>Domain</th><th>Visitors · 30d</th><th>Trend</th><th>Edited</th><th></th></tr>
@@ -57,11 +68,9 @@ export default function SitesPage({ sites, onOpen, onCreate }) {
                 <td style={{ textAlign: 'right' }}><Icons.chevronRight size={14} style={{ color: 'var(--ink-3)' }} /></td>
               </tr>
             ))}
-            {list.length === 0 && (
-              <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--ink-3)', padding: '32px 0' }}>No sites found</td></tr>
-            )}
           </tbody>
         </table>
+        )}
       </div>
     </div>
   )
