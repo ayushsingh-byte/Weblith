@@ -3,18 +3,126 @@ import Icons from '../components/ui/Icons'
 import { supabase } from '../lib/supabase'
 import { COLLAB_PEOPLE } from '../data/seeds'
 
+function CreateTokenModal({ onClose, onCreate }) {
+  const [name, setName]     = useState('')
+  const [scope, setScope]   = useState('read')
+  const [expiry, setExpiry] = useState('90d')
+  const [created, setCreated] = useState(null)
+
+  const SCOPES = [
+    { id: 'read',   label: 'Read',         desc: 'Read sites, analytics, content' },
+    { id: 'write',  label: 'Read + Write',  desc: 'Read + create/update content' },
+    { id: 'deploy', label: 'Deploy',        desc: 'Trigger deployments and rollbacks' },
+    { id: 'full',   label: 'Full access',   desc: 'All API operations including billing' },
+  ]
+
+  const create = () => {
+    const token = 'wbt_' + Array.from({ length: 32 }, () => Math.random().toString(36)[2]).join('')
+    setCreated(token)
+    onCreate && onCreate({ name, scope, expiry, token })
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 480 }}>
+        <div className="modal-header">
+          <div>
+            <h3 style={{ fontSize: 16, fontWeight: 600 }}>Create API token</h3>
+            <p style={{ fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>Tokens provide programmatic access to the Weblith API</p>
+          </div>
+          <button className="btn btn-icon btn-ghost" onClick={onClose}><Icons.x size={14} /></button>
+        </div>
+        <div className="modal-body">
+          {!created ? (
+            <>
+              <label className="field">
+                <span className="field-label">Token name</span>
+                <input className="input" placeholder="e.g. CI pipeline, Zapier" value={name} onChange={e => setName(e.target.value)} autoFocus />
+              </label>
+              <div style={{ marginBottom: 14 }}>
+                <div className="field-label" style={{ marginBottom: 8 }}>Permissions</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {SCOPES.map(s => (
+                    <div key={s.id} onClick={() => setScope(s.id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 8, cursor: 'pointer',
+                        border: scope === s.id ? '2px solid var(--accent)' : '1px solid var(--line)',
+                        background: scope === s.id ? 'var(--accent-soft)' : 'var(--bg-sunk)' }}>
+                      <div style={{ width: 16, height: 16, borderRadius: '50%', border: `2px solid ${scope === s.id ? 'var(--accent)' : 'var(--line)'}`, background: scope === s.id ? 'var(--accent)' : 'transparent', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+                        {scope === s.id && <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'white' }} />}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 500 }}>{s.label}</div>
+                        <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{s.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <label className="field">
+                <span className="field-label">Expiration</span>
+                <select className="input" value={expiry} onChange={e => setExpiry(e.target.value)}>
+                  <option value="30d">30 days</option>
+                  <option value="90d">90 days</option>
+                  <option value="1y">1 year</option>
+                  <option value="never">Never (not recommended)</option>
+                </select>
+              </label>
+            </>
+          ) : (
+            <>
+              <div style={{ padding: '16px', background: 'var(--bg-sunk)', borderRadius: 8, border: '1px solid var(--line)', marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: 'var(--ink-3)', fontWeight: 600, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Your new token</div>
+                <div className="mono" style={{ fontSize: 12.5, wordBreak: 'break-all', color: 'var(--ok)', lineHeight: 1.5 }}>{created}</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', background: 'var(--warn-soft)', borderRadius: 8, fontSize: 12.5 }}>
+                <Icons.warn size={13} style={{ color: 'var(--warn)', flexShrink: 0, marginTop: 1 }} />
+                <span style={{ color: 'var(--ink-2)', lineHeight: 1.5 }}>Copy this token now. You won't be able to see it again.</span>
+              </div>
+            </>
+          )}
+        </div>
+        <div className="modal-footer">
+          {!created ? (
+            <>
+              <button className="btn btn-secondary press" onClick={onClose}>Cancel</button>
+              <button className="btn btn-primary press" disabled={!name} onClick={create}><Icons.key size={13} /> Create token</button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn-secondary press" onClick={() => navigator.clipboard.writeText(created)}><Icons.copy size={12} /> Copy token</button>
+              <button className="btn btn-primary press" onClick={onClose}>Done</button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function SettingsPage({ user }) {
-  const [tab, setTab] = useState('general')
-  const [accent, setAccent] = useState('blue')
-  const [plan, setPlan] = useState('pro')
+  const [tab, setTab]           = useState('general')
+  const [accent, setAccent]     = useState('blue')
+  const [plan, setPlan]         = useState('pro')
   const [currentPw, setCurrentPw] = useState('')
-  const [newPw, setNewPw] = useState('')
+  const [newPw, setNewPw]       = useState('')
   const [pwSaving, setPwSaving] = useState(false)
-  const [pwMsg, setPwMsg] = useState('')
+  const [pwMsg, setPwMsg]       = useState('')
   const [domainSearch, setDomainSearch] = useState('')
-  const [cart, setCart] = useState([])
+  const [cart, setCart]         = useState([])
   const [domainResults, setDomainResults] = useState(null)
   const [searching, setSearching] = useState(false)
+  const [showCreateToken, setShowCreateToken] = useState(false)
+  const [tokens, setTokens]     = useState([
+    { name: 'CLI · weblith-cli', last: '2h ago',  scope: 'full',   expiry: 'Never'       },
+    { name: 'CI deployments',    last: '1d ago',   scope: 'deploy', expiry: 'Dec 1, 2026' },
+    { name: 'Zapier webhook',    last: '5d ago',   scope: 'read',   expiry: 'Mar 15, 2027' },
+  ])
+  const [webhooks, setWebhooks] = useState([
+    { id: 1, name: 'Zapier integration', url: 'https://hooks.zapier.com/hooks/catch/...', events: ['site.published', 'form.submitted'], active: true,  last: '2h ago'  },
+    { id: 2, name: 'Slack notify',       url: 'https://hooks.slack.com/services/...',    events: ['site.published', 'deploy.failed'],  active: true,  last: '1d ago'  },
+  ])
+  const [showAddWebhook, setShowAddWebhook] = useState(false)
+  const [newWebhookUrl, setNewWebhookUrl] = useState('')
 
   const tabs = [
     { id: 'general',      label: 'General',          icon: Icons.settings },
@@ -24,6 +132,7 @@ export default function SettingsPage({ user }) {
     { id: 'payments',     label: 'Payment history',   icon: Icons.card },
     { id: 'domains',      label: 'Domains',           icon: Icons.globe2 },
     { id: 'integrations', label: 'Integrations',      icon: Icons.plug },
+    { id: 'webhooks',     label: 'Webhooks',          icon: Icons.send },
     { id: 'notifications',label: 'Notifications',     icon: Icons.bell },
     { id: 'security',     label: 'Security',          icon: Icons.shield },
     { id: 'api',          label: 'API tokens',        icon: Icons.key },
@@ -478,6 +587,98 @@ export default function SettingsPage({ user }) {
             </Section>
           )}
 
+          {/* ── WEBHOOKS ── */}
+          {tab === 'webhooks' && (
+            <>
+              <Section title="Outgoing webhooks" desc={`${webhooks.length} webhooks configured`}>
+                {webhooks.map((wh, i) => (
+                  <div key={wh.id} style={{ padding: '16px 0', borderBottom: i < webhooks.length - 1 ? '1px solid var(--line)' : 'none' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 9, background: wh.active ? 'var(--accent-soft)' : 'var(--bg-sunk)', border: '1px solid var(--line)', display: 'grid', placeItems: 'center', color: wh.active ? 'var(--accent-ink)' : 'var(--ink-3)', flexShrink: 0 }}>
+                        <Icons.send size={15} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                          <strong style={{ fontSize: 13.5 }}>{wh.name}</strong>
+                          <span className={`chip ${wh.active ? 'chip-ok' : ''}`} style={{ fontSize: 10 }}>{wh.active ? 'Active' : 'Paused'}</span>
+                        </div>
+                        <div className="mono" style={{ fontSize: 11, color: 'var(--ink-3)', marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 360 }}>{wh.url}</div>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                          {wh.events.map(ev => <span key={ev} className="chip" style={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}>{ev}</span>)}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 6 }}>Last delivered {wh.last}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button className="btn btn-ghost btn-sm press">{wh.active ? 'Pause' : 'Resume'}</button>
+                        <button className="btn btn-ghost btn-sm press"><Icons.refresh size={11} /> Test</button>
+                        <button className="btn btn-icon btn-ghost btn-sm" style={{ color: 'var(--err)' }}><Icons.trash size={12} /></button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button className="btn btn-primary press" style={{ marginTop: 16 }} onClick={() => setShowAddWebhook(true)}>
+                  <Icons.plus size={13} /> Add webhook
+                </button>
+
+                {showAddWebhook && (
+                  <div style={{ marginTop: 16, padding: 18, background: 'var(--bg-sunk)', borderRadius: 10, border: '1px solid var(--line)' }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 14 }}>New webhook</h4>
+                    <label className="field"><span>Webhook name</span><input className="input" placeholder="e.g. Slack notifications" /></label>
+                    <label className="field">
+                      <span>Endpoint URL</span>
+                      <input className="input mono" placeholder="https://hooks.example.com/..." value={newWebhookUrl} onChange={e => setNewWebhookUrl(e.target.value)} />
+                    </label>
+                    <div className="field">
+                      <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink-2)', marginBottom: 8, display: 'block' }}>Events to send</span>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                        {[
+                          'site.published', 'site.updated', 'deploy.succeeded',
+                          'deploy.failed', 'form.submitted', 'domain.verified',
+                          'member.joined', 'version.restored',
+                        ].map(ev => (
+                          <label key={ev} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12 }}>
+                            <input type="checkbox" defaultChecked={ev.includes('published') || ev.includes('submitted')} />
+                            <span className="mono" style={{ fontSize: 11.5 }}>{ev}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                      <button className="btn btn-secondary press" onClick={() => setShowAddWebhook(false)}>Cancel</button>
+                      <button className="btn btn-primary press" disabled={!newWebhookUrl}
+                        onClick={() => {
+                          setWebhooks(wh => [...wh, { id: Date.now(), name: 'New webhook', url: newWebhookUrl, events: ['site.published'], active: true, last: 'never' }])
+                          setShowAddWebhook(false); setNewWebhookUrl('')
+                        }}>
+                        <Icons.send size={12} /> Create webhook
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </Section>
+
+              <Section title="Webhook events reference" desc="All events Weblith can send to your endpoints">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {[
+                    { ev: 'site.published',   desc: 'Site goes from draft to live' },
+                    { ev: 'site.updated',     desc: 'Site content saved' },
+                    { ev: 'deploy.succeeded', desc: 'Build completes successfully' },
+                    { ev: 'deploy.failed',    desc: 'Build or upload fails' },
+                    { ev: 'form.submitted',   desc: 'Contact form submission received' },
+                    { ev: 'domain.verified',  desc: 'Custom domain DNS confirmed' },
+                    { ev: 'member.joined',    desc: 'New team member accepts invite' },
+                    { ev: 'version.restored', desc: 'Version snapshot restored' },
+                  ].map(e => (
+                    <div key={e.ev} style={{ padding: '10px 12px', background: 'var(--bg-sunk)', borderRadius: 8, border: '1px solid var(--line)' }}>
+                      <div className="mono" style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--accent-ink)', marginBottom: 2 }}>{e.ev}</div>
+                      <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>{e.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            </>
+          )}
+
           {/* ── NOTIFICATIONS ── */}
           {tab === 'notifications' && (
             <Section title="Email notifications">
@@ -546,24 +747,60 @@ export default function SettingsPage({ user }) {
 
           {/* ── API TOKENS ── */}
           {tab === 'api' && (
-            <Section title="API tokens" desc="Use tokens to access the Weblith API. Treat them like passwords.">
-              {[
-                { name: 'CLI · weblith-cli', last: '2h ago', scope: 'full'   },
-                { name: 'CI deployments',    last: '1d ago', scope: 'deploy' },
-                { name: 'Zapier webhook',    last: '5d ago', scope: 'read'   },
-              ].map((t, i, a) => (
-                <div key={t.name} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: i < a.length - 1 ? '1px solid var(--line)' : 'none' }}>
-                  <Icons.key size={16} style={{ color: 'var(--ink-3)' }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 500 }}>{t.name}</div>
-                    <div className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>wbt_•••••••••••• · last used {t.last}</div>
+            <>
+              <Section title="API tokens" desc="Use tokens to access the Weblith REST API. Treat them like passwords — never commit to source code.">
+                {tokens.map((t, i) => (
+                  <div key={t.name} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: i < tokens.length - 1 ? '1px solid var(--line)' : 'none' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 9, background: 'var(--bg-sunk)', border: '1px solid var(--line)', display: 'grid', placeItems: 'center', color: 'var(--ink-3)', flexShrink: 0 }}>
+                      <Icons.key size={15} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 500, marginBottom: 2 }}>{t.name}</div>
+                      <div style={{ display: 'flex', gap: 10, fontSize: 11, color: 'var(--ink-3)' }}>
+                        <span className="mono">wbt_••••••••••••••••••••••••••••••</span>
+                        <span>·</span>
+                        <span>Last used {t.last}</span>
+                        <span>·</span>
+                        <span>Expires {t.expiry}</span>
+                      </div>
+                    </div>
+                    <span className={`chip ${t.scope === 'full' ? 'chip-accent' : t.scope === 'deploy' ? 'chip-warn' : ''}`}>{t.scope}</span>
+                    <button className="btn btn-ghost btn-sm press"><Icons.copy size={11} /></button>
+                    <button className="btn btn-ghost btn-sm" style={{ color: 'var(--err)' }}
+                      onClick={() => setTokens(ts => ts.filter(x => x.name !== t.name))}>Revoke</button>
                   </div>
-                  <span className="chip">{t.scope}</span>
-                  <button className="btn btn-ghost btn-sm" style={{ color: 'var(--err)' }}>Revoke</button>
+                ))}
+                <button className="btn btn-primary press" style={{ marginTop: 16 }} onClick={() => setShowCreateToken(true)}>
+                  <Icons.plus size={13} /> Create new token
+                </button>
+              </Section>
+
+              <Section title="API reference" desc="Base URL: https://api.weblith.site/v1">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  {[
+                    { method: 'GET',    path: '/sites',                desc: 'List all sites'       },
+                    { method: 'POST',   path: '/sites',                desc: 'Create a site'        },
+                    { method: 'GET',    path: '/sites/:id',            desc: 'Get site details'     },
+                    { method: 'PATCH',  path: '/sites/:id',            desc: 'Update site content'  },
+                    { method: 'POST',   path: '/sites/:id/publish',    desc: 'Publish a site'       },
+                    { method: 'POST',   path: '/sites/:id/deploy',     desc: 'Trigger a deploy'     },
+                    { method: 'GET',    path: '/sites/:id/analytics',  desc: 'Get analytics data'   },
+                    { method: 'POST',   path: '/sites/:id/versions',   desc: 'Create a snapshot'    },
+                  ].map(r => (
+                    <div key={r.path} style={{ padding: '10px 12px', background: 'var(--bg-sunk)', borderRadius: 8, border: '1px solid var(--line)', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--font-mono)', color: r.method === 'GET' ? 'var(--ok)' : r.method === 'POST' ? 'var(--accent-ink)' : 'var(--warn)', background: r.method === 'GET' ? 'var(--ok-soft)' : r.method === 'POST' ? 'var(--accent-soft)' : 'var(--warn-soft)', padding: '2px 5px', borderRadius: 4, flexShrink: 0 }}>{r.method}</span>
+                      <div>
+                        <div className="mono" style={{ fontSize: 11.5, fontWeight: 500 }}>{r.path}</div>
+                        <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }}>{r.desc}</div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-              <button className="btn btn-primary press" style={{ marginTop: 16 }}><Icons.plus size={13} /> Create new token</button>
-            </Section>
+                <div style={{ marginTop: 12 }}>
+                  <button className="btn btn-secondary btn-sm press"><Icons.external size={11} /> Full API docs</button>
+                </div>
+              </Section>
+            </>
           )}
 
           {/* ── DANGER ── */}
@@ -587,6 +824,13 @@ export default function SettingsPage({ user }) {
           )}
         </main>
       </div>
+
+      {showCreateToken && (
+        <CreateTokenModal
+          onClose={() => setShowCreateToken(false)}
+          onCreate={(t) => setTokens(ts => [...ts, { name: t.name, scope: t.scope, last: 'never', expiry: t.expiry === 'never' ? 'Never' : t.expiry }])}
+        />
+      )}
     </div>
   )
 }

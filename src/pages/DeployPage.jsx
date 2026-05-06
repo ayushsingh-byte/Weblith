@@ -2,19 +2,21 @@ import { useState } from 'react'
 import Icons from '../components/ui/Icons'
 
 export default function DeployPage({ sites }) {
-  const [siteId, setSiteId] = useState(sites[0]?.id)
+  const [siteId, setSiteId]     = useState(sites[0]?.id)
   const site = sites.find(s => s.id === siteId)
-  const [running, setRunning] = useState(false)
-  const [stage, setStage] = useState(3)
-  const [log, setLog] = useState([])
-  const [tab, setTab] = useState('pipeline')
-  const [envs, setEnvs] = useState([
-    { k: 'API_URL', v: 'https://api.weblith.site', secret: false },
-    { k: 'SUPABASE_KEY', v: '••••••••••••••••', secret: true },
-    { k: 'STRIPE_PK', v: 'pk_live_••••', secret: true },
+  const [running, setRunning]   = useState(false)
+  const [stage, setStage]       = useState(3)
+  const [log, setLog]           = useState([])
+  const [tab, setTab]           = useState('pipeline')
+  const [envs, setEnvs]         = useState([
+    { k: 'API_URL',      v: 'https://api.weblith.site', secret: false },
+    { k: 'SUPABASE_KEY', v: '••••••••••••••••',          secret: true  },
+    { k: 'STRIPE_PK',   v: 'pk_live_••••',              secret: true  },
   ])
-  const [newK, setNewK] = useState('')
-  const [newV, setNewV] = useState('')
+  const [newK, setNewK]         = useState('')
+  const [newV, setNewV]         = useState('')
+  const [integration, setInteg] = useState('weblith')
+  const [configuring, setConf]  = useState(null)
 
   const stages = ['Queued', 'Building', 'Bundling', 'Uploading', 'Live']
 
@@ -30,15 +32,15 @@ export default function DeployPage({ sites }) {
       { t: 'info', m: '  · Optimizing 12 images' },
       { t: 'info', m: '  · Generating static HTML for 4 pages' },
       { t: 'ok',   m: '✓ Build completed (4.2s) · 312KB gzipped' },
-      { t: 'info', m: '→ Uploading to edge CDN (38 PoPs)' },
+      { t: 'info', m: `→ Uploading to ${integration === 'vercel' ? 'Vercel Edge Network' : integration === 'netlify' ? 'Netlify CDN' : 'Weblith edge CDN (38 PoPs)'}` },
       { t: 'info', m: '  · Invalidating cache' },
       { t: 'ok',   m: `✓ Deploy live · ${site?.slug || 'site'}.weblith.site` },
     ]
     lines.forEach((l, i) => {
       setTimeout(() => {
         setLog(prev => [...prev, l])
-        if (i === 4) setStage(1)
-        if (i === 8) setStage(2)
+        if (i === 4)  setStage(1)
+        if (i === 8)  setStage(2)
         if (i === 10) setStage(3)
         if (i === lines.length - 1) { setStage(4); setRunning(false) }
       }, 280 * (i + 1))
@@ -46,18 +48,50 @@ export default function DeployPage({ sites }) {
   }
 
   const deploys = [
-    { id: 'd9', sha: '3a4f81c', branch: 'main', msg: 'Updated hero copy and added testimonials section', status: 'live', when: 'just now', dur: '4.2s', author: 'AC' },
-    { id: 'd8', sha: '8e21fa0', branch: 'main', msg: 'Added work grid layout with hover states', status: 'previous', when: '2h ago', dur: '3.8s', author: 'AC' },
-    { id: 'd7', sha: '0c19b22', branch: 'feat/about', msg: 'Drafted about page with team carousel', status: 'previous', when: 'yesterday', dur: '6.1s', author: 'MR' },
-    { id: 'd6', sha: 'b71f902', branch: 'main', msg: 'Initial publish', status: 'previous', when: '3 days ago', dur: '5.4s', author: 'AC' },
-    { id: 'd5', sha: 'e0aa334', branch: 'main', msg: 'Setup project scaffold', status: 'failed', when: '5 days ago', dur: '—', author: 'AC' },
+    { id: 'd9', sha: '3a4f81c', branch: 'main',        msg: 'Updated hero copy and added testimonials section', status: 'live',     when: 'just now',  dur: '4.2s', author: 'AC' },
+    { id: 'd8', sha: '8e21fa0', branch: 'main',        msg: 'Added work grid layout with hover states',         status: 'previous', when: '2h ago',    dur: '3.8s', author: 'AC' },
+    { id: 'd7', sha: '0c19b22', branch: 'feat/about',  msg: 'Drafted about page with team carousel',            status: 'previous', when: 'yesterday', dur: '6.1s', author: 'MR' },
+    { id: 'd6', sha: 'b71f902', branch: 'main',        msg: 'Initial publish',                                  status: 'previous', when: '3 days ago', dur: '5.4s', author: 'AC' },
+    { id: 'd5', sha: 'e0aa334', branch: 'main',        msg: 'Setup project scaffold',                           status: 'failed',   when: '5 days ago', dur: '—',    author: 'AC' },
   ]
 
   const tabItems = [
-    { id: 'pipeline', label: 'Build log', icon: Icons.code },
-    { id: 'history', label: 'Deployments', icon: Icons.history },
-    { id: 'env', label: 'Environment vars', icon: Icons.key },
-    { id: 'settings', label: 'Build settings', icon: Icons.settings },
+    { id: 'pipeline',    label: 'Build log',          icon: Icons.code    },
+    { id: 'history',     label: 'Deployments',        icon: Icons.history },
+    { id: 'integration', label: 'Integration',        icon: Icons.plug    },
+    { id: 'env',         label: 'Environment vars',   icon: Icons.key     },
+    { id: 'settings',    label: 'Build settings',     icon: Icons.settings },
+  ]
+
+  const integrations = [
+    {
+      id: 'weblith',
+      name: 'Weblith CDN',
+      desc: 'Built-in global edge with 38 points of presence. Zero config.',
+      badge: 'Default',
+      features: ['Auto SSL', 'Global CDN', 'Preview URLs', 'Instant rollback'],
+    },
+    {
+      id: 'vercel',
+      name: 'Vercel',
+      desc: 'Deploy to Vercel\'s edge network. Ideal for Next.js projects.',
+      badge: null,
+      features: ['Edge functions', 'Preview deploys', 'Serverless', 'Analytics'],
+    },
+    {
+      id: 'netlify',
+      name: 'Netlify',
+      desc: 'Netlify build & deploy pipeline with form handling and functions.',
+      badge: null,
+      features: ['Build plugins', 'Split testing', 'Forms', 'Identity'],
+    },
+    {
+      id: 'cloudflare',
+      name: 'Cloudflare Pages',
+      desc: 'Deploy to Cloudflare\'s global network with Workers integration.',
+      badge: null,
+      features: ['Workers integration', 'Unlimited bandwidth', 'Fast purge', 'DDoS protection'],
+    },
   ]
 
   return (
@@ -66,6 +100,11 @@ export default function DeployPage({ sites }) {
         <div>
           <div className="eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span className="live-pill"><span className="live-dot" /> Production live</span>
+            {integration !== 'weblith' && (
+              <span className="chip chip-accent" style={{ fontSize: 10.5 }}>
+                via {integrations.find(i => i.id === integration)?.name}
+              </span>
+            )}
           </div>
           <h1 className="display" style={{ fontSize: 30, marginTop: 10 }}>Deploy</h1>
           <p className="subtitle" style={{ fontSize: 14 }}>Ship the latest commit to the global edge in seconds.</p>
@@ -139,9 +178,9 @@ export default function DeployPage({ sites }) {
               {deploys.map(d => (
                 <tr key={d.id}>
                   <td>
-                    {d.status === 'live' && <span className="chip chip-ok"><Icons.check size={10} /> Live</span>}
+                    {d.status === 'live'     && <span className="chip chip-ok"><Icons.check size={10} /> Live</span>}
                     {d.status === 'previous' && <span className="chip">Previous</span>}
-                    {d.status === 'failed' && <span className="chip chip-err"><Icons.x size={10} /> Failed</span>}
+                    {d.status === 'failed'   && <span className="chip chip-err"><Icons.x size={10} /> Failed</span>}
                   </td>
                   <td>
                     <div style={{ fontSize: 12.5, fontWeight: 500 }}>{d.msg}</div>
@@ -163,6 +202,61 @@ export default function DeployPage({ sites }) {
         </div>
       )}
 
+      {tab === 'integration' && (
+        <div>
+          <p style={{ fontSize: 13, color: 'var(--ink-2)', marginBottom: 18 }}>Choose where your site gets deployed. You can switch providers at any time — existing URLs stay alive for 24h after migration.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+            {integrations.map(ig => (
+              <div key={ig.id} className="card" onClick={() => setInteg(ig.id)} style={{ padding: 20, cursor: 'pointer', position: 'relative',
+                border: integration === ig.id ? '2px solid var(--accent)' : '1px solid var(--line)',
+                background: integration === ig.id ? 'var(--accent-soft)' : 'var(--bg-elev)' }}>
+                {ig.badge && (
+                  <span style={{ position: 'absolute', top: -10, right: 16, background: 'var(--accent)', color: 'white', fontSize: 10, fontWeight: 600, padding: '2px 10px', borderRadius: 999 }}>{ig.badge}</span>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 9, background: integration === ig.id ? 'var(--accent)' : 'var(--bg-sunk)', display: 'grid', placeItems: 'center', border: '1px solid var(--line)', flexShrink: 0 }}>
+                    <Icons.bolt size={16} style={{ color: integration === ig.id ? 'white' : 'var(--ink-3)' }} />
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{ig.name}</div>
+                    {integration === ig.id && <span className="chip chip-accent" style={{ fontSize: 10, marginTop: 2 }}>Active</span>}
+                  </div>
+                </div>
+                <p style={{ fontSize: 12.5, color: 'var(--ink-2)', marginBottom: 12, lineHeight: 1.5 }}>{ig.desc}</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {ig.features.map(f => <span key={f} className="chip" style={{ fontSize: 11 }}>{f}</span>)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {integration !== 'weblith' && (
+            <div className="card" style={{ padding: 20 }}>
+              <h3 className="eyebrow" style={{ marginBottom: 14 }}>Connect {integrations.find(i => i.id === integration)?.name}</h3>
+              <label className="field">
+                <span className="field-label">Access token</span>
+                <input className="input mono" placeholder={`Paste your ${integrations.find(i => i.id === integration)?.name} token`} />
+              </label>
+              {integration === 'vercel' && (
+                <label className="field">
+                  <span className="field-label">Team ID (optional)</span>
+                  <input className="input mono" placeholder="team_xxxxxxxxxxxx" />
+                </label>
+              )}
+              {integration === 'netlify' && (
+                <label className="field">
+                  <span className="field-label">Site ID</span>
+                  <input className="input mono" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                </label>
+              )}
+              <button className="btn btn-primary press" style={{ marginTop: 4 }}>
+                <Icons.plug size={13} /> Connect & verify
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {tab === 'env' && (
         <div className="card" style={{ padding: 22 }}>
           <p style={{ fontSize: 13, color: 'var(--ink-2)', marginBottom: 16 }}>Environment variables are encrypted at rest and exposed at build time.</p>
@@ -179,7 +273,7 @@ export default function DeployPage({ sites }) {
           <div style={{ borderTop: '1px solid var(--line)', marginTop: 16, paddingTop: 16 }}>
             <div className="kv-row">
               <input className="input mono" placeholder="KEY_NAME" value={newK} onChange={e => setNewK(e.target.value)} style={{ height: 34 }} />
-              <input className="input mono" placeholder="value" value={newV} onChange={e => setNewV(e.target.value)} style={{ height: 34 }} />
+              <input className="input mono" placeholder="value"    value={newV} onChange={e => setNewV(e.target.value)} style={{ height: 34 }} />
               <button className="btn btn-primary btn-sm press" disabled={!newK}
                 onClick={() => { setEnvs(es => [...es, { k: newK, v: newV, secret: false }]); setNewK(''); setNewV('') }}>
                 <Icons.plus size={12} /> Add
@@ -204,12 +298,13 @@ export default function DeployPage({ sites }) {
             <label className="field"><span>Node version</span>
               <select className="input" defaultValue="20"><option>20</option><option>18</option><option>16</option></select>
             </label>
+            <button className="btn btn-primary press" style={{ marginTop: 4 }}>Save settings</button>
           </div>
           <div className="card" style={{ padding: 22 }}>
             <h3 className="eyebrow" style={{ marginBottom: 14 }}>Deploy hooks</h3>
             <p style={{ fontSize: 12.5, color: 'var(--ink-2)', marginBottom: 14 }}>Trigger production builds from external services via these hooks.</p>
             {[
-              { name: 'CMS publish', url: 'https://weblith.site/hooks/d9f3...', when: 'last fired 2h ago' },
+              { name: 'CMS publish',       url: 'https://weblith.site/hooks/d9f3...', when: 'last fired 2h ago' },
               { name: 'Cron daily refresh', url: 'https://weblith.site/hooks/8e2a...', when: 'fires daily at 04:00 UTC' },
             ].map(h => (
               <div key={h.name} style={{ padding: '12px 0', borderBottom: '1px solid var(--line)' }}>
