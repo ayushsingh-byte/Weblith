@@ -26,7 +26,7 @@ import NotificationsPanel from './components/overlays/NotificationsPanel'
 
 import Icons from './components/ui/Icons'
 
-const SITES_KEY = 'forge_sites_v1'
+const SITES_KEY = 'weblith_sites_v1'
 
 function loadSites() {
   try {
@@ -98,7 +98,7 @@ export default function App() {
     const newSite = {
       id, name, slug, template,
       status: 'draft', visitors: 0, edited: 'just now',
-      domain: `${slug}.forge.site`,
+      domain: `${slug}.weblith.site`,
       favicon: name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase() || 'NS',
       color: 'oklch(0.92 0.04 80)',
       content: {

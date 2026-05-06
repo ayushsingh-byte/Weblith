@@ -56,10 +56,10 @@ function SettingsPage() {
             <>
               <Section title="Workspace" desc="Information about this workspace.">
                 <label className="field"><span>Workspace name</span><input className="input" defaultValue="Studio Halcyon"/></label>
-                <label className="field"><span>Slug</span><div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span className="mono" style={{ color: 'var(--ink-3)', fontSize: 13 }}>forge.site/</span><input className="input mono" defaultValue="halcyon"/></div></label>
+                <label className="field"><span>Slug</span><div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span className="mono" style={{ color: 'var(--ink-3)', fontSize: 13 }}>weblith.site/</span><input className="input mono" defaultValue="halcyon"/></div></label>
                 <label className="field"><span>Default timezone</span><select className="input" defaultValue="ny"><option value="ny">America/New_York (UTC-5)</option><option>Europe/London</option><option>Asia/Tokyo</option></select></label>
               </Section>
-              <Section title="Appearance" desc="Customize how Forge looks for you.">
+              <Section title="Appearance" desc="Customize how Weblith looks for you.">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
                   <span style={{ fontSize: 13, flex: 1 }}>Accent color</span>
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -140,7 +140,7 @@ function SettingsPage() {
               <Section title="Current plan">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 18 }}>
                   {[
-                    { id: 'free', name: 'Free', price: '$0', sub: 'forever', features: ['1 site', 'forge.site domain', 'Community support'] },
+                    { id: 'free', name: 'Free', price: '$0', sub: 'forever', features: ['1 site', 'weblith.site domain', 'Community support'] },
                     { id: 'pro', name: 'Pro', price: '$19', sub: 'per month', features: ['Unlimited sites', 'Custom domains', 'AI generator (50k tokens)', 'Email support'] },
                     { id: 'team', name: 'Team', price: '$49', sub: 'per month', features: ['Everything in Pro', '5 team seats', 'Real-time collaboration', 'Priority support'] },
                   ].map(p => (
@@ -268,9 +268,9 @@ function SettingsPage() {
           )}
 
           {tab === 'api' && (
-            <Section title="API tokens" desc="Use tokens to access the Forge API. Treat them like passwords.">
+            <Section title="API tokens" desc="Use tokens to access the Weblith API. Treat them like passwords.">
               {[
-                { name: 'CLI · forge-cli', last: '2h ago', scope: 'full' },
+                { name: 'CLI · weblith-cli', last: '2h ago', scope: 'full' },
                 { name: 'CI deployments', last: '1d ago', scope: 'deploy' },
               ].map((t, i, a) => (
                 <div key={t.name} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: i < a.length-1 ? '1px solid var(--line)' : 'none' }}>

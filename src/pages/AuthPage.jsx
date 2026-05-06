@@ -63,8 +63,8 @@ export default function AuthPage() {
       {/* Left brand panel */}
       <div className="auth-art">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative', zIndex: 1 }}>
-          <div className="brand-mark" style={{ background: 'var(--bg)', color: 'var(--ink)' }}>F</div>
-          <span style={{ fontWeight: 600, letterSpacing: '-0.02em', fontSize: 16 }}>Forge</span>
+          <div className="brand-mark" style={{ background: 'var(--bg)', color: 'var(--ink)' }}>W</div>
+          <span style={{ fontWeight: 600, letterSpacing: '-0.02em', fontSize: 16 }}>Weblith</span>
         </div>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div className="eyebrow" style={{ color: 'oklch(0.7 0.04 268)', marginBottom: 18 }}>Build · Edit · Publish</div>
@@ -90,7 +90,7 @@ export default function AuthPage() {
               {forgotMode ? 'Password reset' : mode === 'login' ? 'Welcome back' : 'Create your workspace'}
             </div>
             <h2 className="title" style={{ fontSize: 28, marginBottom: 6 }}>
-              {forgotMode ? 'Reset your password' : mode === 'login' ? 'Sign in to Forge' : "Get started — it's free"}
+              {forgotMode ? 'Reset your password' : mode === 'login' ? 'Sign in to Weblith' : "Get started — it's free"}
             </h2>
             <p className="subtitle">
               {forgotMode ? "We'll email you a reset link." : mode === 'login' ? 'Continue editing your sites.' : 'Build up to 3 sites on the free plan.'}
@@ -168,7 +168,7 @@ export default function AuthPage() {
                 </button>
               </div>
               <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--ink-2)', marginTop: 4 }}>
-                {mode === 'login' ? 'New to Forge? ' : 'Already have an account? '}
+                {mode === 'login' ? 'New to Weblith? ' : 'Already have an account? '}
                 <button type="button" onClick={() => { setMode(m => m === 'login' ? 'register' : 'login'); setError(''); setInfo('') }}
                   style={{ color: 'var(--accent)', cursor: 'pointer', fontWeight: 500, background: 'none', border: 'none' }}>
                   {mode === 'login' ? 'Create an account' : 'Sign in'}

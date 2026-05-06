@@ -4,11 +4,11 @@ const { useState, useEffect, useRef } = React;
 // ---------- Theme toggle ----------
 function ThemeToggle({ compact = false }) {
   const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem('forge-theme') || 'light'; } catch (e) { return 'light'; }
+    try { return localStorage.getItem('weblith-theme') || 'light'; } catch (e) { return 'light'; }
   });
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    try { localStorage.setItem('forge-theme', theme); } catch (e) {}
+    try { localStorage.setItem('weblith-theme', theme); } catch (e) {}
   }, [theme]);
   const toggle = () => setTheme(t => t === 'light' ? 'dark' : 'light');
   if (compact) {
@@ -43,9 +43,9 @@ function Sidebar({ route, go, sites }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <div className="brand-mark">F</div>
+        <div className="brand-mark">W</div>
         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2, flex: 1 }}>
-          <span style={{ fontWeight: 600, letterSpacing: '-0.02em', fontSize: 15 }}>Forge</span>
+          <span style={{ fontWeight: 600, letterSpacing: '-0.02em', fontSize: 15 }}>Weblith</span>
           <span style={{ fontSize: 11, color: 'var(--ink-3)' }}>{MOCK_USER.plan} workspace</span>
         </div>
         <button className="btn btn-icon btn-ghost btn-sm press" title="Workspace switcher" style={{ padding: 4 }}>

@@ -3,12 +3,12 @@ import Icons from '../ui/Icons'
 
 export default function ThemeToggle({ compact = false }) {
   const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem('forge-theme') || 'light' } catch { return 'light' }
+    try { return localStorage.getItem('weblith-theme') || 'light' } catch { return 'light' }
   })
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
-    try { localStorage.setItem('forge-theme', theme) } catch {}
+    try { localStorage.setItem('weblith-theme', theme) } catch {}
   }, [theme])
 
   const toggle = () => setTheme(t => t === 'light' ? 'dark' : 'light')

@@ -74,7 +74,7 @@ export default function SettingsPage({ user }) {
                 <label className="field"><span>Workspace name</span><input className="input" defaultValue="Studio Halcyon" /></label>
                 <label className="field"><span>Slug</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span className="mono" style={{ color: 'var(--ink-3)', fontSize: 13 }}>forge.site/</span>
+                    <span className="mono" style={{ color: 'var(--ink-3)', fontSize: 13 }}>weblith.site/</span>
                     <input className="input mono" defaultValue="halcyon" />
                   </div>
                 </label>
@@ -86,7 +86,7 @@ export default function SettingsPage({ user }) {
                 </label>
                 <button className="btn btn-primary press" style={{ marginTop: 4 }}>Save changes</button>
               </Section>
-              <Section title="Appearance" desc="Customize how Forge looks for you.">
+              <Section title="Appearance" desc="Customize how Weblith looks for you.">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
                   <span style={{ fontSize: 13, flex: 1 }}>Accent color</span>
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -154,7 +154,7 @@ export default function SettingsPage({ user }) {
               <Section title="Current plan">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 18 }}>
                   {[
-                    { id: 'free', name: 'Free', price: '$0', sub: 'forever', features: ['1 site', 'forge.site domain', 'Community support'] },
+                    { id: 'free', name: 'Free', price: '$0', sub: 'forever', features: ['1 site', 'weblith.site domain', 'Community support'] },
                     { id: 'pro', name: 'Pro', price: '$19', sub: 'per month', features: ['Unlimited sites', 'Custom domains', 'AI generator (50k tokens)', 'Email support'] },
                     { id: 'team', name: 'Team', price: '$49', sub: 'per month', features: ['Everything in Pro', '5 team seats', 'Real-time collaboration', 'Priority support'] },
                   ].map(p => (
@@ -274,16 +274,16 @@ export default function SettingsPage({ user }) {
           )}
 
           {tab === 'api' && (
-            <Section title="API tokens" desc="Use tokens to access the Forge API. Treat them like passwords.">
+            <Section title="API tokens" desc="Use tokens to access the Weblith API. Treat them like passwords.">
               {[
-                { name: 'CLI · forge-cli', last: '2h ago', scope: 'full' },
+                { name: 'CLI · weblith-cli', last: '2h ago', scope: 'full' },
                 { name: 'CI deployments', last: '1d ago', scope: 'deploy' },
               ].map((t, i, a) => (
                 <div key={t.name} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: i < a.length - 1 ? '1px solid var(--line)' : 'none' }}>
                   <Icons.key size={16} style={{ color: 'var(--ink-3)' }} />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13.5, fontWeight: 500 }}>{t.name}</div>
-                    <div className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>fgt_•••••••••••• · last used {t.last}</div>
+                    <div className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>wbt_•••••••••••• · last used {t.last}</div>
                   </div>
                   <span className="chip">{t.scope}</span>
                   <button className="btn btn-ghost btn-sm" style={{ color: 'var(--err)' }}>Revoke</button>

@@ -29,7 +29,7 @@ const SEED_SITES = [
     status: "published",
     visitors: 1284,
     edited: "2 hours ago",
-    domain: "alex-chen.forge.site",
+    domain: "alex-chen.weblith.site",
     favicon: "AC",
     color: "oklch(0.92 0.04 80)",
     content: {
@@ -54,7 +54,7 @@ const SEED_SITES = [
     status: "draft",
     visitors: 0,
     edited: "yesterday",
-    domain: "halcyon.forge.site",
+    domain: "halcyon.weblith.site",
     favicon: "HL",
     color: "oklch(0.94 0.04 240)",
     content: {
@@ -73,7 +73,7 @@ const SEED_SITES = [
     status: "published",
     visitors: 412,
     edited: "3 days ago",
-    domain: "field-notes.forge.site",
+    domain: "field-notes.weblith.site",
     favicon: "FN",
     color: "oklch(0.96 0.02 70)",
     content: {

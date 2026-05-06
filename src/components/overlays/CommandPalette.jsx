@@ -93,7 +93,7 @@ export default function CommandPalette({ open, onClose, onNavigate, onCreate, on
             <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
             <span><kbd>↵</kbd> open</span>
           </div>
-          <span>Forge ⌘K</span>
+          <span>Weblith ⌘K</span>
         </div>
       </div>
     </div>

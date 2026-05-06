@@ -79,7 +79,7 @@ function BlockPreview({ block }) {
   if (block.type === 'cta') return (
     <div style={{ padding: '48px 40px', textAlign: 'center', background: 'var(--accent-soft)', borderRadius: 12, margin: '16px 24px' }}>
       <h2 style={{ fontSize: 30, fontWeight: 600, letterSpacing: '-0.025em', marginBottom: 10 }}>{s.h2 || 'Ready to get started?'}</h2>
-      <p style={{ fontSize: 15, color: 'var(--ink-2)', marginBottom: 24 }}>{s.sub || 'Join thousands of teams already building with Forge.'}</p>
+      <p style={{ fontSize: 15, color: 'var(--ink-2)', marginBottom: 24 }}>{s.sub || 'Join thousands of teams already building with Weblith.'}</p>
       <button className="btn btn-primary">{s.cta || 'Start for free'} <Icons.arrowRight size={13} /></button>
     </div>
   )

@@ -82,7 +82,7 @@ function AIPage() {
       <main className="ai-chat">
         <div style={{ padding: '12px 32px', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontWeight: 600, fontSize: 14 }}>Forge AI</div>
+            <div style={{ fontWeight: 600, fontSize: 14 }}>Weblith AI</div>
             <div style={{ fontSize: 11.5, color: 'var(--ink-3)' }}>Drafts pages, sections, copy & visuals from natural language</div>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -97,7 +97,7 @@ function AIPage() {
             <div key={i} className={`ai-msg ${m.role}`}>
               <div className="ai-msg-avatar">{m.role === 'user' ? 'A' : <Icons.sparkle size={13}/>}</div>
               <div className="ai-msg-body">
-                <div className="ai-msg-meta">{m.role === 'user' ? 'You' : 'Forge AI'} · {m.t}</div>
+                <div className="ai-msg-meta">{m.role === 'user' ? 'You' : 'Weblith AI'} · {m.t}</div>
                 {m.gen ? (
                   <div className="ai-bubble gen">
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -135,7 +135,7 @@ function AIPage() {
             <div className="ai-msg assistant">
               <div className="ai-msg-avatar"><Icons.sparkle size={13}/></div>
               <div className="ai-msg-body">
-                <div className="ai-msg-meta">Forge AI · thinking</div>
+                <div className="ai-msg-meta">Weblith AI · thinking</div>
                 <div className="ai-bubble" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span className="spinner" />
                   <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>Drafting your hero section…</span>

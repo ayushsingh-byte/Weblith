@@ -21,7 +21,7 @@ function SitePreview({ site, viewport = 'desktop' }) {
 
       <footer style={{ padding: '32px 48px', borderTop: '1px solid oklch(0.91 0.006 80)', display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'oklch(0.62 0.008 80)' }}>
         <span>© 2026 {c.title}</span>
-        <span style={{ fontFamily: 'var(--font-mono)' }}>built with forge</span>
+        <span style={{ fontFamily: 'var(--font-mono)' }}>built with weblith</span>
       </footer>
     </div>
   );

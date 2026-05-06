@@ -108,9 +108,9 @@ export default function DomainPage({ sites }) {
 
         <div className="card" style={{ padding: 22 }}>
           <h3 className="eyebrow" style={{ marginBottom: 14 }}>Nameservers (optional)</h3>
-          <p style={{ fontSize: 12.5, color: 'var(--ink-2)', marginBottom: 14 }}>For full DNS control via Forge, point your registrar to:</p>
+          <p style={{ fontSize: 12.5, color: 'var(--ink-2)', marginBottom: 14 }}>For full DNS control via Weblith, point your registrar to:</p>
           <div className="card" style={{ background: 'var(--bg-sunk)', padding: 14, marginBottom: 12 }}>
-            {['ns1.forge.site', 'ns2.forge.site', 'ns3.forge.site', 'ns4.forge.site'].map((n, i) => (
+            {['ns1.weblith.site', 'ns2.weblith.site', 'ns3.weblith.site', 'ns4.weblith.site'].map((n, i) => (
               <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: i < 3 ? '1px solid var(--line)' : 'none' }}>
                 <span className="mono" style={{ fontSize: 12, flex: 1 }}>{n}</span>
                 <button className="btn btn-icon btn-ghost btn-sm"><Icons.copy size={12} /></button>
@@ -170,7 +170,7 @@ export default function DomainPage({ sites }) {
                       <thead><tr><th>Type</th><th>Name</th><th>Value</th><th>TTL</th></tr></thead>
                       <tbody>
                         <tr><td><span className="chip">A</span></td><td className="mono">@</td><td className="mono">76.76.21.21</td><td className="mono">3600</td></tr>
-                        <tr><td><span className="chip">CNAME</span></td><td className="mono">www</td><td className="mono">cname.forge.site</td><td className="mono">3600</td></tr>
+                        <tr><td><span className="chip">CNAME</span></td><td className="mono">www</td><td className="mono">cname.weblith.site</td><td className="mono">3600</td></tr>
                       </tbody>
                     </table>
                   </div>

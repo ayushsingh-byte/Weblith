@@ -46,12 +46,12 @@ function CreateSiteModal({ open, onClose, onCreate }) {
               <div style={{ height: 14 }} />
               <label className="field-label">URL</label>
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span className="mono" style={{ padding: '10px 12px', background: 'var(--bg-sunk)', border: '1px solid var(--line)', borderRight: 'none', borderRadius: '10px 0 0 10px', color: 'var(--ink-3)', fontSize: 12 }}>forge.site /</span>
+                <span className="mono" style={{ padding: '10px 12px', background: 'var(--bg-sunk)', border: '1px solid var(--line)', borderRight: 'none', borderRadius: '10px 0 0 10px', color: 'var(--ink-3)', fontSize: 12 }}>weblith.site /</span>
                 <input className="input" value={slug} onChange={(e) => setSlug(slugify(e.target.value))} placeholder="my-site" style={{ borderRadius: '0 10px 10px 0' }} />
               </div>
               <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-sunk)', borderRadius: 10, fontSize: 12.5, color: 'var(--ink-2)', display: 'flex', gap: 10 }}>
                 <Icons.bolt size={14} style={{ color: 'var(--accent)', flexShrink: 0, marginTop: 2 }} />
-                <div>You can change the URL anytime from Site Settings. We'll publish to a free <span className="mono" style={{ background: 'var(--bg-elev)', padding: '0 4px', borderRadius: 3 }}>{slug || 'site'}.forge.site</span> subdomain.</div>
+                <div>You can change the URL anytime from Site Settings. We'll publish to a free <span className="mono" style={{ background: 'var(--bg-elev)', padding: '0 4px', borderRadius: 3 }}>{slug || 'site'}.weblith.site</span> subdomain.</div>
               </div>
             </div>
           )}

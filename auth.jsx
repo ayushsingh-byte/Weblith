@@ -22,8 +22,8 @@ function AuthScreen({ mode, onSwitch, onAuth }) {
     <div className="auth-shell">
       <div className="auth-art">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative', zIndex: 1 }}>
-          <div className="brand-mark" style={{ background: 'var(--bg)', color: 'var(--ink)' }}>F</div>
-          <span style={{ fontWeight: 600, letterSpacing: '-0.02em', fontSize: 16 }}>Forge</span>
+          <div className="brand-mark" style={{ background: 'var(--bg)', color: 'var(--ink)' }}>W</div>
+          <span style={{ fontWeight: 600, letterSpacing: '-0.02em', fontSize: 16 }}>Weblith</span>
         </div>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div className="eyebrow" style={{ color: 'oklch(0.7 0.04 268)', marginBottom: 18 }}>Build · Edit · Publish</div>
@@ -44,7 +44,7 @@ function AuthScreen({ mode, onSwitch, onAuth }) {
         <form className={`auth-form fade-in${shake ? ' shake' : ''}`} onSubmit={submit}>
           <div>
             <div className="eyebrow" style={{ marginBottom: 10 }}>{mode === 'login' ? 'Welcome back' : 'Create your workspace'}</div>
-            <h2 className="title" style={{ fontSize: 28, marginBottom: 6 }}>{mode === 'login' ? 'Sign in to Forge' : 'Get started — it\'s free'}</h2>
+            <h2 className="title" style={{ fontSize: 28, marginBottom: 6 }}>{mode === 'login' ? 'Sign in to Weblith' : 'Get started — it\'s free'}</h2>
             <p className="subtitle">{mode === 'login' ? 'Continue editing your sites.' : 'Build up to 3 sites on the free plan.'}</p>
           </div>
 
@@ -87,7 +87,7 @@ function AuthScreen({ mode, onSwitch, onAuth }) {
           </div>
 
           <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--ink-2)', marginTop: 4 }}>
-            {mode === 'login' ? "New to Forge? " : "Already have an account? "}
+            {mode === 'login' ? "New to Weblith? " : "Already have an account? "}
             <a onClick={onSwitch} style={{ color: 'var(--accent)', cursor: 'pointer', fontWeight: 500 }}>
               {mode === 'login' ? 'Create an account' : 'Sign in'}
             </a>

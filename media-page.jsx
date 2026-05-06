@@ -207,7 +207,7 @@ function MediaPage() {
             <div style={{ marginTop: 18 }}>
               <div className="eyebrow" style={{ marginBottom: 10 }}>Public URL</div>
               <div style={{ display: 'flex', gap: 6 }}>
-                <input className="input mono" value={`forge.cdn/m/${sel.id}.jpg`} readOnly style={{ height: 32, fontSize: 11 }} />
+                <input className="input mono" value={`weblith.cdn/m/${sel.id}.jpg`} readOnly style={{ height: 32, fontSize: 11 }} />
                 <button className="btn btn-secondary btn-sm press"><Icons.copy size={12}/></button>
               </div>
             </div>

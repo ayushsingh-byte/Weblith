@@ -9,7 +9,7 @@ export default function DeployPage({ sites }) {
   const [log, setLog] = useState([])
   const [tab, setTab] = useState('pipeline')
   const [envs, setEnvs] = useState([
-    { k: 'API_URL', v: 'https://api.forge.site', secret: false },
+    { k: 'API_URL', v: 'https://api.weblith.site', secret: false },
     { k: 'SUPABASE_KEY', v: '••••••••••••••••', secret: true },
     { k: 'STRIPE_PK', v: 'pk_live_••••', secret: true },
   ])
@@ -21,7 +21,7 @@ export default function DeployPage({ sites }) {
   const deploy = () => {
     setRunning(true); setStage(0); setLog([])
     const lines = [
-      { t: 'info', m: '$ forge deploy --prod' },
+      { t: 'info', m: '$ weblith deploy --prod' },
       { t: 'info', m: 'Resolving build environment...' },
       { t: 'info', m: '✓ Node 20.11.0 · npm 10.4.0' },
       { t: 'info', m: '→ Installing dependencies (cached)' },
@@ -32,7 +32,7 @@ export default function DeployPage({ sites }) {
       { t: 'ok',   m: '✓ Build completed (4.2s) · 312KB gzipped' },
       { t: 'info', m: '→ Uploading to edge CDN (38 PoPs)' },
       { t: 'info', m: '  · Invalidating cache' },
-      { t: 'ok',   m: `✓ Deploy live · ${site?.slug || 'site'}.forge.site` },
+      { t: 'ok',   m: `✓ Deploy live · ${site?.slug || 'site'}.weblith.site` },
     ]
     lines.forEach((l, i) => {
       setTimeout(() => {
@@ -209,8 +209,8 @@ export default function DeployPage({ sites }) {
             <h3 className="eyebrow" style={{ marginBottom: 14 }}>Deploy hooks</h3>
             <p style={{ fontSize: 12.5, color: 'var(--ink-2)', marginBottom: 14 }}>Trigger production builds from external services via these hooks.</p>
             {[
-              { name: 'CMS publish', url: 'https://forge.site/hooks/d9f3...', when: 'last fired 2h ago' },
-              { name: 'Cron daily refresh', url: 'https://forge.site/hooks/8e2a...', when: 'fires daily at 04:00 UTC' },
+              { name: 'CMS publish', url: 'https://weblith.site/hooks/d9f3...', when: 'last fired 2h ago' },
+              { name: 'Cron daily refresh', url: 'https://weblith.site/hooks/8e2a...', when: 'fires daily at 04:00 UTC' },
             ].map(h => (
               <div key={h.name} style={{ padding: '12px 0', borderBottom: '1px solid var(--line)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

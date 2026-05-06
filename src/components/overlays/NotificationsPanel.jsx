@@ -2,11 +2,11 @@ import { useState } from 'react'
 import Icons from '../ui/Icons'
 
 const INITIAL = [
-  { id: 1, unread: true,  icon: Icons.bolt,     title: 'Deploy succeeded',   text: 'Personal portfolio is now live at alex-chen.forge.site', when: '2m ago' },
+  { id: 1, unread: true,  icon: Icons.bolt,     title: 'Deploy succeeded',   text: 'Personal portfolio is now live at alex-chen.weblith.site', when: '2m ago' },
   { id: 2, unread: true,  icon: Icons.sparkles, title: 'AI draft ready',     text: 'Your generated hero copy is waiting in Halcyon launch.',  when: '1h ago' },
   { id: 3, unread: false, icon: Icons.eye,      title: 'Traffic milestone',  text: 'Personal portfolio passed 1,000 visitors this month.',   when: 'yesterday' },
   { id: 4, unread: false, icon: Icons.history,  title: 'Auto-saved version', text: 'v8 saved with 3 content changes.',                       when: 'yesterday' },
-  { id: 5, unread: false, icon: Icons.globe2,   title: 'Domain verified',    text: 'alex-chen.forge.site DNS is healthy.',                   when: '2 days ago' },
+  { id: 5, unread: false, icon: Icons.globe2,   title: 'Domain verified',    text: 'alex-chen.weblith.site DNS is healthy.',                   when: '2 days ago' },
 ]
 
 export default function NotificationsPanel({ open, onClose }) {
